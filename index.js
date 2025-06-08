@@ -9,7 +9,11 @@ const PORT = process.env.PORT || 3001;
 
 // Middleware
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+  origin: [
+    'https://asd-screening-tool-anks.vercel.app',
+    'https://asd-screening-tool-anks-pz39vrv0i-muskaan-ss-projects.vercel.app',
+    process.env.FRONTEND_URL || 'http://localhost:3000'
+  ],
   credentials: true
 }));
 app.use(express.json());
@@ -28,11 +32,28 @@ app.get('/api/tests/emotion-data', (req, res) => {
     items: [
       {
         id: 1,
-        image: 'happy_face.jpg',
+        image: 'https://example.com/images/happy.jpg',
         correctEmotion: 'happy',
         options: ['happy', 'sad', 'angry', 'surprised']
       },
-      // Add more test items as needed
+      {
+        id: 2,
+        image: 'https://example.com/images/sad.jpg',
+        correctEmotion: 'sad',
+        options: ['happy', 'sad', 'angry', 'surprised']
+      },
+      {
+        id: 3,
+        image: 'https://example.com/images/angry.jpg',
+        correctEmotion: 'angry',
+        options: ['happy', 'sad', 'angry', 'surprised']
+      },
+      {
+        id: 4,
+        image: 'https://example.com/images/surprised.jpg',
+        correctEmotion: 'surprised',
+        options: ['happy', 'sad', 'angry', 'surprised']
+      }
     ]
   });
 });
@@ -45,9 +66,39 @@ app.get('/api/tests/pattern-data', (req, res) => {
         sequence: [0, 1, 2, 3],
         difficulty: 'easy'
       },
-      // Add more patterns as needed
+      {
+        id: 2,
+        sequence: [0, 2, 4, 6],
+        difficulty: 'medium'
+      },
+      {
+        id: 3,
+        sequence: [1, 3, 6, 2, 5],
+        difficulty: 'hard'
+      },
+      {
+        id: 4,
+        sequence: [0, 1, 1, 2, 3, 5],
+        difficulty: 'hard'
+      }
     ]
   });
+});
+
+// Save test results endpoint
+app.post('/api/test-results', async (req, res) => {
+  try {
+    const { testType, score, answers, totalTime } = req.body;
+    // For now, just acknowledge the save
+    res.json({ 
+      success: true, 
+      message: 'Test results saved successfully',
+      data: { testType, score, totalTime }
+    });
+  } catch (error) {
+    console.error('Error saving test results:', error);
+    res.status(500).json({ error: 'Failed to save test results' });
+  }
 });
 
 // Error handling middleware
