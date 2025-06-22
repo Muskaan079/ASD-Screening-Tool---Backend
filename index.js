@@ -9,12 +9,11 @@ const helmet = require('helmet');
 const compression = require('compression');
 const morgan = require('morgan');
 
-// OpenAI integration
-const { Configuration, OpenAIApi } = require('openai');
-const configuration = new Configuration({ 
-  apiKey: process.env.OPENAI_API_KEY 
+// OpenAI integration - Updated for newer version
+const OpenAI = require('openai');
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY
 });
-const openai = new OpenAIApi(configuration);
 
 const app = express();
 const server = http.createServer(app);
@@ -194,7 +193,7 @@ Please provide:
 
 Format the response as JSON with these fields: summary, observations, riskFactors, recommendations, confidence`;
 
-    const response = await openai.createChatCompletion({
+    const response = await openai.chat.completions.create({
       model: 'gpt-3.5-turbo',
       messages: [
         {
@@ -210,7 +209,7 @@ Format the response as JSON with these fields: summary, observations, riskFactor
       temperature: 0.3,
     });
 
-    const aiResponse = response.data.choices[0].message.content;
+    const aiResponse = response.choices[0].message.content;
     
     // Try to parse JSON response, fallback to text if needed
     let analysis;
@@ -272,7 +271,7 @@ Please create a comprehensive clinical report including:
 
 Format as JSON with fields: summary, testResults, dsm5Criteria, icd11Criteria, observations, riskFactors, recommendations, confidence`;
 
-    const response = await openai.createChatCompletion({
+    const response = await openai.chat.completions.create({
       model: 'gpt-3.5-turbo',
       messages: [
         {
@@ -288,7 +287,7 @@ Format as JSON with fields: summary, testResults, dsm5Criteria, icd11Criteria, o
       temperature: 0.2,
     });
 
-    const aiResponse = response.data.choices[0].message.content;
+    const aiResponse = response.choices[0].message.content;
     
     // Try to parse JSON response, fallback to structured format if needed
     let report;
@@ -378,7 +377,7 @@ Please provide:
 
 Format as JSON with fields: timeline, confidence, modelType`;
 
-    const response = await openai.createChatCompletion({
+    const response = await openai.chat.completions.create({
       model: 'gpt-3.5-turbo',
       messages: [
         {
@@ -394,7 +393,7 @@ Format as JSON with fields: timeline, confidence, modelType`;
       temperature: 0.3,
     });
 
-    const aiResponse = response.data.choices[0].message.content;
+    const aiResponse = response.choices[0].message.content;
     
     let projection;
     try {
@@ -444,7 +443,7 @@ Please provide:
 
 Format as JSON with fields: featureImportance, decisionPath, confidenceFactors, limitations`;
 
-    const response = await openai.createChatCompletion({
+    const response = await openai.chat.completions.create({
       model: 'gpt-3.5-turbo',
       messages: [
         {
@@ -460,7 +459,7 @@ Format as JSON with fields: featureImportance, decisionPath, confidenceFactors, 
       temperature: 0.2,
     });
 
-    const aiResponse = response.data.choices[0].message.content;
+    const aiResponse = response.choices[0].message.content;
     
     let explainability;
     try {
@@ -501,7 +500,7 @@ app.post('/api/llm/stream', validateToken, async (req, res) => {
         if (process.env.OPENAI_API_KEY) {
           const prompt = `Analyze this ASD screening context in real-time: ${JSON.stringify(context)}`;
           
-          const response = await openai.createChatCompletion({
+          const response = await openai.chat.completions.create({
             model: 'gpt-3.5-turbo',
             messages: [{ role: 'user', content: prompt }],
             max_tokens: 300,
